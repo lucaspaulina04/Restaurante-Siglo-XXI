@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // Importa el hook para navegación
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import '../styles/Cliente.css';
 
@@ -62,7 +64,7 @@ const ClientPanel = () => {
           <a href="#catalogo">Catálogo</a>
         </nav>
         <button className="logout-button" onClick={handleLogout}>
-          <i className="fa fa-sign-out" aria-hidden="true"></i> Cerrar Sesión
+          <FontAwesomeIcon icon={faSignOutAlt} /> Cerrar Sesión
         </button>
       </aside>
       <main className="main-content">

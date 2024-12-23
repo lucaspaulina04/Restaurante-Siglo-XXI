@@ -226,7 +226,7 @@ h1, h2 {
   font-size: 18px; /* Texto más grande */
   text-align: center;
   cursor: pointer;
-  margin-top: 360px;
+  margin-top: auto;
   margin-bottom: 2px; /* Para que quede un poco más arriba del borde */
   border-bottom: 2px solid white; /* Borde blanco solo abajo */
   display: flex;

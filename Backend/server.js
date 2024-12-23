@@ -37,6 +37,7 @@ try {
   const productRoutes = require('./routes/productRoutes');
   const supplierOrderRoutes = require('./routes/supplierOrderRoutes');
   const orderRoutes = require('./routes/orderRoutes');
+  const financeRoutes = require('./routes/financeRoutes');
 
   app.use('/api/users', userRoutes);
   console.log('Rutas de usuarios cargadas correctamente');
@@ -45,7 +46,8 @@ try {
   app.use('/api/auth', authRoutes);
   app.use('/api/products', productRoutes);
   app.use('/api/supplier-orders', supplierOrderRoutes);
-
+  app.use('/api/finance', financeRoutes);
+  
   console.log('Rutas de autenticación cargadas correctamente');
   console.log('Rutas de productos cargadas correctamente');
   console.log('Rutas de pedidos a proveedores cargadas correctamente');
@@ -53,11 +55,7 @@ try {
   console.log('Error al cargar rutas:', error.message);
 }
 
-// Ruta para prueba básica
-app.get('/', (req, res) => {
-  console.log('Ruta de prueba "/" alcanzada');
-  res.send('Servidor funcionando correctamente');
-});
+
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 5000;

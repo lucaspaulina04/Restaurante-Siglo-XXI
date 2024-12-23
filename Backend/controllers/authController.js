@@ -3,9 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.login = async (req, res) => {
-  console.log('Iniciando proceso de login...');
-  console.log('Datos recibidos:', req.body); // Verifica los datos enviados desde el cliente
-
+  
   const { email, password } = req.body;
 
   try {

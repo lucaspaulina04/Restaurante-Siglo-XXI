@@ -73,21 +73,12 @@ exports.updateOrder = async (req, res) => {
   const { id } = req.params; // Extrae el ID de los parámetros de la solicitud
   const { status } = req.body; // Extrae el estado del cuerpo de la solicitud
 
-  // Debug inicial: Verificar entrada
-  console.log('=== Debug Inicial ===');
-  console.log('Método:', req.method);
-  console.log('Ruta completa:', req.originalUrl);
-  console.log('ID recibido:', id);
-  console.log('Body recibido:', req.body);
-
   try {
     // Verifica si el ID es un ObjectId válido
     if (!id || id.length !== 24) {
       console.error('Error: ID inválido');
       return res.status(400).json({ error: 'ID inválido' });
     }
-
-    console.log('ID válido, intentando buscar la orden en la base de datos...');
 
     // Busca la orden por ID
     const order = await Order.findById(id);
@@ -97,18 +88,9 @@ exports.updateOrder = async (req, res) => {
       return res.status(404).json({ error: 'Orden no encontrada' });
     }
 
-    console.log('Orden encontrada:', order);
-
-    // Debug: Estado antes de actualizar
-    console.log('Estado actual de la orden:', order.status);
-    console.log('Nuevo estado recibido:', status);
-
     // Actualiza el estado de la orden
     order.status = status;
     await order.save();
-
-    // Debug: Estado después de actualizar
-    console.log('Estado de la orden después de actualizar:', order.status);
 
     res.status(200).json({ message: 'Estado de la orden actualizado', order });
   } catch (error) {

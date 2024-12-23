@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Cocina.css';
 
 const CocinaPanel = () => {
@@ -42,7 +44,7 @@ const CocinaPanel = () => {
           <a href="/cocina">Tablero de Órdenes</a>
         </nav>
         <button className="logout-button" onClick={handleLogout}>
-          <span>🔑</span> Cerrar Sesión
+          <FontAwesomeIcon icon={faSignOutAlt} /> Cerrar Sesión
         </button>
       </aside>
       <main className="main-content">

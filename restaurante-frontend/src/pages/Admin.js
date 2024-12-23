@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { getToken, removeToken } from '../utils/auth';
 import ProductManager from '../components/ProductManager';
@@ -18,31 +18,14 @@ import {
 import '../styles/Admin.css';
 
 const Admin = () => {
-  const [users, setUsers] = useState([]);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    role: 'client',
-  });
-  const [editUserId, setEditUserId] = useState(null);
   const token = getToken();
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/users', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setUsers(response.data);
-    } catch (error) {
-      console.error('Error al obtener usuarios:', error);
+    if (!token) {
+      navigate('/'); // Redirige al inicio de sesión si no hay token
     }
-  };
+  }, [token, navigate]);
 
   const handleLogout = () => {
     removeToken();
@@ -76,6 +59,8 @@ const Admin = () => {
       {/* Main Content */}
       <main className="main-content">
         <Routes>
+          {/* Redirección inicial */}
+          <Route path="/" element={<Navigate to="/admin/users" />} />
           <Route path="users" element={<UserManager />} />
           <Route path="products" element={<ProductManager />} />
           <Route path="orders" element={<SupplierOrderManager />} />
