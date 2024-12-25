@@ -38,15 +38,21 @@ try {
   const supplierOrderRoutes = require('./routes/supplierOrderRoutes');
   const orderRoutes = require('./routes/orderRoutes');
   const financeRoutes = require('./routes/financeRoutes');
+  const bodegaRoutes = require('./routes/bodegaRoutes');
+  const recetaRoutes = require('./routes/recetaRoutes');
+  const validarToken = require('./middleware/validarToken')
 
-  app.use('/api/users', userRoutes);
+  app.use('/api/bodega', validarToken,bodegaRoutes);
+  
+  app.use('/api/users', validarToken,userRoutes);
   console.log('Rutas de usuarios cargadas correctamente');
 
-  app.use('/api/orders', orderRoutes);
+  app.use('/api/orders', validarToken, orderRoutes);
   app.use('/api/auth', authRoutes);
-  app.use('/api/products', productRoutes);
-  app.use('/api/supplier-orders', supplierOrderRoutes);
-  app.use('/api/finance', financeRoutes);
+  app.use('/api/products', validarToken,productRoutes);
+  app.use('/api/supplier-orders', validarToken, supplierOrderRoutes);
+  app.use('/api/finance', validarToken,financeRoutes);
+  app.use('/api/receta', validarToken,recetaRoutes);
   
   console.log('Rutas de autenticación cargadas correctamente');
   console.log('Rutas de productos cargadas correctamente');
