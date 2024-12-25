@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { saveToken } from '../utils/auth';
 import { useNavigate } from 'react-router-dom';
+import HelpButton from '../components/Help';
 import '../styles/Login.css'; // Importar los estilos específicos del login
 
 const Login = () => {
@@ -15,11 +16,30 @@ const Login = () => {
       const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
       saveToken(response.data.token);
 
-      const role = JSON.parse(atob(response.data.token.split('.')[1])).role;
-      if (role === 'admin') navigate('/admin');
-      else if (role === 'cocina') navigate('/cocina');
-      else if (role === 'finanzas') navigate('/finanzas');
-      else if (role === 'client') navigate('/client');
+      // Decodificar el token para obtener el rol
+      const decodedToken = JSON.parse(atob(response.data.token.split('.')[1]));
+      const role = decodedToken.role;
+
+      // Redirigir según el rol del usuario
+      switch (role) {
+        case 'admin':
+          navigate('/admin');
+          break;
+        case 'cocina':
+          navigate('/cocina');
+          break;
+        case 'finanzas':
+          navigate('/finanzas');
+          break;
+        case 'client':
+          navigate('/client');
+          break;
+        case 'bodega':
+          navigate('/bodega');
+          break;
+        default:
+          alert('Rol desconocido. Contacte al administrador.');
+      }
     } catch (error) {
       alert('Login fallido: Verifique sus credenciales.');
     }
@@ -48,6 +68,7 @@ const Login = () => {
           <button type="submit">Ingresar</button>
         </form>
       </div>
+      <HelpButton/>
     </div>
   );
 };

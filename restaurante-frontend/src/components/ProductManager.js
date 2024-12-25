@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { getToken, removeToken } from '../utils/auth'; // Importa las funciones para el manejo del token
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import HelpButton from './Help';
 
 const ProductManager = () => {
   const [products, setProducts] = useState([]);
@@ -12,17 +15,29 @@ const ProductManager = () => {
     category: '',
   });
   const [editId, setEditId] = useState(null);
+  const navigate = useNavigate(); // Hook para la navegación
+  const token = getToken(); // Obtiene el token
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (!token) {
+      navigate('/'); // Redirige al login si no hay token
+    } else {
+      fetchProducts(); // Obtiene los productos si hay token válido
+    }
+  }, [token, navigate]);
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get('http://localhost:5000/api/products', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setProducts(response.data);
     } catch (error) {
       console.error('Error al obtener productos:', error);
+      if (error.response && error.response.status === 401) {
+        removeToken(); // Elimina el token si no es válido
+        navigate('/'); // Redirige al inicio de sesión
+      }
     }
   };
 
@@ -30,15 +45,23 @@ const ProductManager = () => {
     e.preventDefault();
     try {
       if (editId) {
-        await axios.put(`http://localhost:5000/api/products/${editId}`, formData);
+        await axios.put(`http://localhost:5000/api/products/${editId}`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setEditId(null);
       } else {
-        await axios.post('http://localhost:5000/api/products', formData);
+        await axios.post('http://localhost:5000/api/products', formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
       }
       setFormData({ name: '', price: '', stock: '', category: '' });
       fetchProducts();
     } catch (error) {
       console.error('Error al enviar datos:', error);
+      if (error.response && error.response.status === 401) {
+        removeToken();
+        navigate('/');
+      }
     }
   };
 
@@ -49,10 +72,16 @@ const ProductManager = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/products/${id}`);
+      await axios.delete(`http://localhost:5000/api/products/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       fetchProducts();
     } catch (error) {
       console.error('Error al eliminar producto:', error);
+      if (error.response && error.response.status === 401) {
+        removeToken();
+        navigate('/');
+      }
     }
   };
 
@@ -128,6 +157,7 @@ const ProductManager = () => {
           ))}
         </tbody>
       </table>
+      <HelpButton/>
     </div>
   );
 };

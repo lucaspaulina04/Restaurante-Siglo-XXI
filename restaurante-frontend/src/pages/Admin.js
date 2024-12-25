@@ -5,6 +5,7 @@ import { getToken, removeToken } from '../utils/auth';
 import ProductManager from '../components/ProductManager';
 import SupplierOrderManager from '../components/SupplierOrderManager';
 import Reports from '../components/Reports';
+import HelpButton from'../components/Help';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEdit,
@@ -23,18 +24,18 @@ const Admin = () => {
 
   useEffect(() => {
     if (!token) {
-      navigate('/'); // Redirige al inicio de sesión si no hay token
+      navigate('/'); 
     }
   }, [token, navigate]);
 
   const handleLogout = () => {
     removeToken();
-    navigate('/'); // Redirige al inicio de sesión
+    navigate('/'); 
   };
 
   return (
     <div className="admin-layout">
-      {/* Sidebar */}
+      
       <aside className="sidebar">
         <h1 style={{ color: '#ffffff' }}>Panel Admin</h1>
         <nav>
@@ -56,10 +57,10 @@ const Admin = () => {
         </button>
       </aside>
 
-      {/* Main Content */}
+   
       <main className="main-content">
         <Routes>
-          {/* Redirección inicial */}
+         
           <Route path="/" element={<Navigate to="/admin/users" />} />
           <Route path="users" element={<UserManager />} />
           <Route path="products" element={<ProductManager />} />
@@ -81,6 +82,7 @@ const UserManager = () => {
   const [editUserId, setEditUserId] = useState(null);
   const [users, setUsers] = useState([]);
   const token = getToken();
+  const navigate = useNavigate();
 
   const fetchUsers = async () => {
     try {
@@ -90,6 +92,10 @@ const UserManager = () => {
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
+      if (error.response && error.response.status === 401) {
+        removeToken();
+        navigate('/'); 
+      }
     }
   };
 
@@ -116,6 +122,10 @@ const UserManager = () => {
       fetchUsers();
     } catch (error) {
       console.error('Error saving user:', error);
+      if (error.response && error.response.status === 401) {
+        removeToken();
+        navigate('/');
+      }
     }
   };
 
@@ -133,6 +143,10 @@ const UserManager = () => {
       fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
+      if (error.response && error.response.status === 401) {
+        removeToken();
+        navigate('/');
+      }
     }
   };
 
@@ -169,6 +183,8 @@ const UserManager = () => {
           <option value="cocina">Cocina</option>
           <option value="finanzas">Finanzas</option>
           <option value="admin">Administrador</option>
+          <option value="bodega">Bodega</option>
+
         </select>
         <button type="submit">{editUserId ? 'Actualizar' : 'Crear'}</button>
       </form>
@@ -199,6 +215,7 @@ const UserManager = () => {
           ))}
         </tbody>
       </table>
+      <HelpButton />
     </div>
   );
 };

@@ -1,24 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
-import { removeToken } from '../utils/auth'; // Asegúrate de tener esta función para manejar el token.
+import { getToken, removeToken } from '../utils/auth'; 
+import HelpButton from '../components/Help'; 
 import '../styles/Finanzas.css';
 
 const Finanzas = () => {
   const [financeData, setFinanceData] = useState(null);
   const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
-  const navigate = useNavigate(); // Para redirigir al usuario.
+  const navigate = useNavigate();
+  const token = getToken();
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/'); 
+    }
+  }, [token, navigate]);
 
   const fetchFinanceData = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/finance', {
         params: dateRange,
+        headers: { Authorization: `Bearer ${token}` },
       });
       setFinanceData(response.data);
     } catch (error) {
       console.error('Error al obtener datos financieros:', error);
+      if (error.response && error.response.status === 401) {
+        removeToken(); 
+        navigate('/');
+      }
     }
   };
 
@@ -27,13 +40,12 @@ const Finanzas = () => {
   };
 
   const handleLogout = () => {
-    removeToken(); // Elimina el token de autenticación.
-    navigate('/'); // Redirige a la página de inicio de sesión.
+    removeToken(); 
+    navigate('/'); 
   };
 
   return (
     <div className="finanzas-layout">
-      {/* Sidebar */}
       <aside className="finanzas-sidebar">
         <h1>Panel de Finanzas</h1>
         <nav>
@@ -46,11 +58,11 @@ const Finanzas = () => {
         </button>
       </aside>
 
-      {/* Main Content */}
+      
       <main className="finanzas-main-content">
         <h1>Panel de Finanzas</h1>
 
-        {/* Filtros por rango de fechas */}
+        
         <section className="finanzas-section">
           <h2>Calcular Ingresos, Egresos y Utilidad</h2>
           <div className="finanzas-form">
@@ -70,7 +82,6 @@ const Finanzas = () => {
           </div>
         </section>
 
-        {/* Resultados */}
         {financeData && (
           <div>
             <h2>Resultados</h2>
@@ -103,29 +114,12 @@ const Finanzas = () => {
               </thead>
               <tbody>
                 {financeData.ingresosDetalle.map((order) => (
-                  <React.Fragment key={order._id}>
-                    {order.items && order.items.length > 0 ? (
-                      order.items.map((item, index) => (
-                        <tr key={`${order._id}-${index}`}>
-                          <td>{item.product || "Producto desconocido"}</td>
-                          <td>{item.quantity}</td>
-                          <td>${item.price * item.quantity}</td>
-                          <td>{new Date(order.date).toLocaleDateString()}</td>
-                        </tr>
-                      ))
-                    ) : order.product ? (
-                      <tr>
-                        <td>{order.product.name || "Producto desconocido"}</td>
-                        <td>{order.quantity}</td>
-                        <td>${order.product.price * order.quantity}</td>
-                        <td>{new Date(order.date).toLocaleDateString()}</td>
-                      </tr>
-                    ) : (
-                      <tr>
-                        <td colSpan="4">Datos incompletos</td>
-                      </tr>
-                    )}
-                  </React.Fragment>
+                  <tr key={order._id}>
+                    <td>{order.product || 'Producto desconocido'}</td>
+                    <td>{order.quantity}</td>
+                    <td>${order.price * order.quantity}</td>
+                    <td>{new Date(order.date).toLocaleDateString()}</td>
+                  </tr>
                 ))}
               </tbody>
             </table>
@@ -143,8 +137,8 @@ const Finanzas = () => {
               <tbody>
                 {financeData.egresosDetalle.map((order) => (
                   <tr key={order._id}>
-                    <td>{order.supplierName || "Proveedor desconocido"}</td>
-                    <td>{order.product || "Producto desconocido"}</td>
+                    <td>{order.supplierName || 'Proveedor desconocido'}</td>
+                    <td>{order.product || 'Producto desconocido'}</td>
                     <td>${order.price}</td>
                     <td>{new Date(order.date).toLocaleDateString()}</td>
                   </tr>
@@ -153,6 +147,7 @@ const Finanzas = () => {
             </table>
           </div>
         )}
+        <HelpButton />
       </main>
     </div>
   );

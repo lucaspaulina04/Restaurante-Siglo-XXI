@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Importa el hook para navegación
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import { getToken, removeToken } from '../utils/auth';
+import HelpButton from '../components/Help'; 
 import '../styles/Cliente.css';
 
 const ClientPanel = () => {
@@ -10,18 +12,28 @@ const ClientPanel = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [customerName, setCustomerName] = useState('');
-  const navigate = useNavigate(); // Inicializa el hook de navegación
-
+  const navigate = useNavigate();
+  const token = getToken(); 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (!token) {
+      navigate('/'); 
+    } else {
+      fetchProducts();
+    }
+  }, [token, navigate]);
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get('http://localhost:5000/api/products', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setProducts(response.data);
     } catch (error) {
       console.error('Error fetching products:', error.message);
+      if (error.response && error.response.status === 401) {
+        removeToken(); 
+        navigate('/');
+      }
     }
   };
 
@@ -41,19 +53,24 @@ const ClientPanel = () => {
         quantity,
         customerName,
       };
-      console.log('Sending order data:', orderData);
-      const response = await axios.post('http://localhost:5000/api/orders', orderData);
+      await axios.post('http://localhost:5000/api/orders', orderData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       alert('Pedido creado con éxito');
-      console.log('Order response:', response.data);
     } catch (error) {
       console.error('Error creating order:', error.message);
-      alert('Error al crear el pedido');
+      if (error.response && error.response.status === 401) {
+        removeToken();
+        navigate('/');
+      } else {
+        alert('Error al crear el pedido');
+      }
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Elimina el token almacenado
-    navigate('/'); // Redirige al inicio de sesión
+    removeToken();
+    navigate('/');
   };
 
   return (
@@ -106,6 +123,7 @@ const ClientPanel = () => {
             Hacer Pedido
           </button>
         </form>
+        <HelpButton /> 
       </main>
     </div>
   );

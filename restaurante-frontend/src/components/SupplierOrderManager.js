@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Para manejar la navegación
+import { getToken, removeToken } from '../utils/auth'; // Importa las funciones de token
+import HelpButton from'../components/Help';
 
 const SupplierOrderManager = () => {
   const [orders, setOrders] = useState([]);
@@ -9,31 +12,48 @@ const SupplierOrderManager = () => {
     quantity: 0,
     price: 0,
   });
+  const navigate = useNavigate(); // Inicializa el hook para la navegación
+  const token = getToken(); // Obtiene el token almacenado
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    if (!token) {
+      navigate('/'); // Redirige al inicio de sesión si no hay token
+    } else {
+      fetchOrders();
+    }
+  }, [token, navigate]);
 
   const fetchOrders = async () => {
     try {
-      console.log('Fetching orders...');
-      const response = await axios.get('http://localhost:5000/api/supplier-orders');
-      console.log('Orders fetched:', response.data);
+      const response = await axios.get('http://localhost:5000/api/supplier-orders', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setOrders(response.data);
     } catch (error) {
       console.error('Error al obtener pedidos:', error);
+      if (error.response && error.response.status === 401) {
+        removeToken(); // Elimina el token si no es válido
+        navigate('/'); // Redirige al inicio de sesión
+      }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('Creating order:', formData);
-      await axios.post('http://localhost:5000/api/supplier-orders', formData);
+      await axios.post(
+        'http://localhost:5000/api/supplier-orders',
+        formData,
+        { headers: { Authorization: `Bearer ${token}` } } // Incluye el token en la cabecera
+      );
       setFormData({ supplierName: '', product: '', quantity: 0, price: 0 });
-      fetchOrders();
+      fetchOrders(); // Actualiza la lista de pedidos
     } catch (error) {
       console.error('Error al crear pedido:', error);
+      if (error.response && error.response.status === 401) {
+        removeToken(); // Elimina el token si no es válido
+        navigate('/'); // Redirige al inicio de sesión
+      }
     }
   };
 
@@ -96,6 +116,7 @@ const SupplierOrderManager = () => {
           ))}
         </tbody>
       </table>
+      <HelpButton/>
     </div>
   );
 };

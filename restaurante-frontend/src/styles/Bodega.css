@@ -240,3 +240,18 @@ h1, h2 {
   background-color: #003d82; /* Efecto hover */
   transform: scale(1.05); /* Efecto de escala */
 }
+/* Estilo para los elementos de la barra lateral */
+.sidebar-item {
+  color: white;
+  font-size: 16px;
+  margin: 10px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Espacio entre el ícono y el texto */
+  transition: color 0.3s ease;
+}
+
+.sidebar-item:hover {
+  color: #dcdcdc; /* Cambia el color al pasar el mouse */
+}

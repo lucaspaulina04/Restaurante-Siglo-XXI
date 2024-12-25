@@ -5,6 +5,7 @@ import Admin from './pages/Admin';
 import Cocina from './pages/Cocina';
 import ClientPanel from './pages/Cliente';
 import Finanzas from './pages/Finanzas';
+import Bodega from './pages/Bodega'
 import NotFound from './pages/NotFound';
 
 const App = () => {
@@ -16,6 +17,7 @@ const App = () => {
         <Route path="/cocina/*" element={<Cocina/>}/>
         <Route path="/finanzas/*" element={<Finanzas />} />
         <Route path="/client/*" element={<ClientPanel/>}/>
+        <Route path="/bodega/*" element={<Bodega/>}/>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
